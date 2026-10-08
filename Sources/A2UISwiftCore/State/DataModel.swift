@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import Foundation
-import Observation
 
 
 // MARK: - PathSlot
@@ -23,7 +22,6 @@ import Observation
 /// Equivalent to WebCore's per-path `Signal<T>`.
 /// Internal — not exported. Callers outside the module use DataModel.get() / DataContext.
 /// Mirrors WebCore's internal per-path Signal (not exported from data-model.ts).
-@Observable
 final class PathSlot {
     var value: AnyCodable?
 

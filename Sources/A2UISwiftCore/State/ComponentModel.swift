@@ -13,14 +13,12 @@
 // limitations under the License.
 
 import Foundation
-import Observation
 
 /// Represents the state model for an individual UI component.
 /// Mirrors WebCore `ComponentModel`.
 ///
 /// - `id` and `type` are immutable (component identity never changes).
 /// - `properties` is observable — SwiftUI views that read it will auto-refresh on change.
-@Observable
 public final class ComponentModel: Identifiable {
     public let id: String
     public let type: String

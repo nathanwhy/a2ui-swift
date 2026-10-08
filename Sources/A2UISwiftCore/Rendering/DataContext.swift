@@ -40,41 +40,6 @@ public final class DataSubscription<V> {
     }
 }
 
-// MARK: - SlotObserver
-
-/// Bridges @Observable PathSlot → onChange callback using withObservationTracking.
-/// Uses a class so it can be held by reference from the DataSubscription cleanup closure.
-private final class SlotObserver: @unchecked Sendable {
-    private let slot: PathSlot
-    private let onChange: (AnyCodable?) -> Void
-    private var active = true
-
-    init(slot: PathSlot, onChange: @escaping (AnyCodable?) -> Void) {
-        self.slot = slot
-        self.onChange = onChange
-    }
-
-    func start() {
-        observeNext()
-    }
-
-    func stop() {
-        active = false
-    }
-
-    private func observeNext() {
-        guard active else { return }
-        withObservationTracking {
-            _ = self.slot.value
-        } onChange: { [weak self] in
-            guard let self, self.active else { return }
-            let newValue = self.slot.value
-            self.onChange(newValue)
-            self.observeNext()
-        }
-    }
-}
-
 // MARK: - DataContext
 
 /// A contextual view of the main DataModel, serving as the unified interface for resolving

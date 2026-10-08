@@ -14,7 +14,6 @@
 
 @testable import A2UISwiftCore
 import Testing
-import Observation
 
 // Test data matching TypeScript's beforeEach:
 // {
@@ -388,17 +387,13 @@ struct DataModelSubscriptionTests {
     // isDescendant is an internal implementation detail, and testing private methods would break encapsulation in Swift.
 }
 
-// MARK: - PathSlot Observation (Swift-specific)
+// MARK: - PathSlot caching (Swift-specific)
 
-/// Swift-specific: PathSlot is Swift's wrapper for the subscription object returned by WebCore DataModel.subscribe().
-/// It additionally supports the @Observable macro, allowing SwiftUI views to read slot.value directly and
-/// automatically re-render when data changes without manual callback management. These tests verify PathSlot's @Observable behavior.
-@Suite("PathSlot Observation")
-struct DataModelSlotObservationTests {
+@Suite("PathSlot Caching")
+struct DataModelSlotCachingTests {
 
     /// Verifies that slots are created lazily and cached: repeated slot(for:) calls for the same path return the same instance.
-    /// SwiftUI views may read the same path's slot multiple times in body; if each read created a new instance,
-    /// the subscribed onChange listener would be lost and the view would stop responding.
+    /// Otherwise a subscribed onChange listener would be lost on the next lookup.
     @Test("slot is lazily created and cached")
     func slotIdentity() {
         let model = makeModel()
@@ -406,36 +401,4 @@ struct DataModelSlotObservationTests {
         let slot2 = model.slot(for: "/user/name")
         #expect(slot1 === slot2)
     }
-
-    /// Verifies @Observable's fine-grained precision: only changes to the accessed path's slot should trigger onChange.
-    /// Slots unrelated to that path should not trigger, ensuring SwiftUI views do not re-render for unrelated data changes.
-    @Test("observation only triggers for the accessed slot")
-    func observationGranularity() throws {
-        let model = makeModel()
-        let nameSlot = model.slot(for: "/user/name")
-        let ageSlot = model.slot(for: "/user/age")
-
-        let nameFlag = ObservationFlag()
-        withObservationTracking {
-            _ = nameSlot.value
-        } onChange: { [nameFlag] in
-            nameFlag.triggered = true
-        }
-
-        let ageFlag = ObservationFlag()
-        withObservationTracking {
-            _ = ageSlot.value
-        } onChange: { [ageFlag] in
-            ageFlag.triggered = true
-        }
-
-        try model.set("/user/name", value: .string("Frank"))
-
-        #expect(nameFlag.triggered == true)
-        #expect(ageFlag.triggered == false)
-    }
-}
-
-private final class ObservationFlag: @unchecked Sendable {
-    var triggered = false
 }

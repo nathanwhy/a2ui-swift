@@ -24,26 +24,22 @@ import AppKit
 /// Platform-agnostic image type.
 public typealias PlatformImage = NSImage
 #endif
-import Observation
 
 // MARK: - ComponentUIState Protocol & Concrete Types
 // Shared across protocol versions — pure SwiftUI state, no protocol-specific fields.
 
 package protocol ComponentUIState: AnyObject {}
 
-@Observable
 package final class TabsUIState: ComponentUIState {
     package var selectedIndex: Int = 0
     package init() {}
 }
 
-@Observable
 package final class ModalUIState: ComponentUIState {
     package var isPresented: Bool = false
     package init() {}
 }
 
-@Observable
 package final class AudioPlayerUIState: ComponentUIState {
     package var isPlaying: Bool = false
     package var currentTime: Double = 0
@@ -55,7 +51,6 @@ package final class AudioPlayerUIState: ComponentUIState {
     package init() {}
 }
 
-@Observable
 package final class VideoUIState: ComponentUIState, @unchecked Sendable {
     #if canImport(AVKit) && !os(watchOS)
     package var player: AVPlayer?
@@ -69,7 +64,6 @@ package final class VideoUIState: ComponentUIState, @unchecked Sendable {
     package init() {}
 }
 
-@Observable
 package final class MultipleChoiceUIState: ComponentUIState {
     package var filterText: String = ""
     package init() {}

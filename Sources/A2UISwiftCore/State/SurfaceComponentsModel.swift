@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import Foundation
-import Observation
 
 // MARK: - Errors
 
@@ -32,7 +31,6 @@ public enum SurfaceComponentsError: Error, LocalizedError {
 
 /// Manages the collection of components for a specific surface.
 /// Mirrors WebCore `SurfaceComponentsModel`.
-@Observable
 public final class SurfaceComponentsModel {
     // Insertion-ordered backing store: keys in insertion order + lookup dict
     private var insertionOrder: [String] = []

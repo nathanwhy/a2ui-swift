@@ -19,10 +19,10 @@ import PackageDescription
 let package = Package(
     name: "A2UI",
     platforms: [
-        .iOS(.v17),
-        .macOS(.v14),
-        .tvOS(.v17),
-        .watchOS(.v10),
+        .iOS(.v16),
+        .macOS(.v13),
+        .tvOS(.v16),
+        .watchOS(.v9),
         .visionOS(.v1),
     ],
     products: [
@@ -31,16 +31,8 @@ let package = Package(
             targets: ["Primitives"]
         ),
         .library(
-            name: "v_08",
-            targets: ["v_08"]
-        ),
-        .library(
             name: "A2UISwiftCore",
             targets: ["A2UISwiftCore"]
-        ),
-        .library(
-            name: "A2UISwiftUI",
-            targets: ["A2UISwiftUI"]
         ),
         .library(
             name: "A2UIUIKit",
@@ -63,10 +55,6 @@ let package = Package(
             path: "Sources/Primitives"
         ),
         .target(
-            name: "v_08",
-            path: "Sources/v_08"
-        ),
-        .target(
             name: "A2UISwiftCore",
             dependencies: [
                 .product(name: "JSONSchema", package: "swift-json-schema"),
@@ -74,11 +62,6 @@ let package = Package(
             ],
             path: "Sources/A2UISwiftCore",
             resources: [.process("Resources")]
-        ),
-        .target(
-            name: "A2UISwiftUI",
-            dependencies: ["A2UISwiftCore"],
-            path: "Sources/A2UISwiftUI"
         ),
         // Public iOS/tvOS/visionOS renderer. Thin facade that re-exports the
         // shared substrate; platform-only conveniences live here.
@@ -107,23 +90,12 @@ let package = Package(
             path: "Tests/PrimitivesTests"
         ),
         .testTarget(
-            name: "v_08Tests",
-            dependencies: ["v_08"],
-            path: "Tests/v_08Tests",
-            resources: [.copy("TestData")]
-        ),
-        .testTarget(
             name: "A2UISwiftCoreTests",
             dependencies: [
                 "A2UISwiftCore",
                 .product(name: "JSONSchemaBuilder", package: "swift-json-schema"),
             ],
             path: "Tests/A2UISwiftCoreTests"
-        ),
-        .testTarget(
-            name: "A2UISwiftUITests",
-            dependencies: ["A2UISwiftCore", "A2UISwiftUI"],
-            path: "Tests/A2UISwiftUITests"
         ),
         .testTarget(
             name: "A2UIUIKitTests",

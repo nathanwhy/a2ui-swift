@@ -14,7 +14,6 @@
 
 @testable import A2UISwiftCore
 import Testing
-import Observation
 
 @Suite("ComponentModel")
 struct ComponentModelTests {
@@ -87,49 +86,4 @@ struct ComponentModelTests {
     }
 
     // -- @Observable (Swift-specific) --
-
-    /// Swift-specific: verifies that the @Observable macro triggers observation when properties are replaced as a whole,
-    /// allowing SwiftUI views to re-render correctly. WebCore uses a reactive signal system (Preact signals)
-    /// for fine-grained updates; Swift's equivalent mechanism is @Observable, so it needs dedicated coverage.
-    @Test("observation triggers on properties replacement")
-    func observationOnReplacement() {
-        let comp = ComponentModel(id: "c1", type: "Button", properties: [
-            "label": .string("Click")
-        ])
-
-        let flag = ObservationFlag()
-        withObservationTracking {
-            _ = comp.properties
-        } onChange: { [flag] in
-            flag.triggered = true
-        }
-
-        comp.properties = ["label": .string("New")]
-        #expect(flag.triggered == true)
-    }
-
-    /// Swift-specific: verifies that mutating a single property through subscript also triggers @Observable notification.
-    /// SwiftUI views subscribe to comp.properties as a whole, so subscript writes must trigger notification as well,
-    /// otherwise views cannot observe fine-grained property changes.
-    @Test("observation triggers on single property mutation")
-    func observationOnMutation() {
-        let comp = ComponentModel(id: "c1", type: "Button", properties: [
-            "label": .string("Click")
-        ])
-
-        let flag = ObservationFlag()
-        withObservationTracking {
-            _ = comp.properties
-        } onChange: { [flag] in
-            flag.triggered = true
-        }
-
-        comp.properties["label"] = .string("Mutated")
-        #expect(flag.triggered == true)
-    }
-}
-
-/// Sendable wrapper for observation testing.
-private final class ObservationFlag: @unchecked Sendable {
-    var triggered = false
 }

@@ -12,13 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Observation
 
 // MARK: - ComponentNode
 
 /// A resolved node in the v0.9 component tree.
 /// v0.9 uses flat component format — properties stored directly in the instance.
-@Observable
 public final class ComponentNode: Identifiable {
     public let id: String
     public let baseComponentId: String
