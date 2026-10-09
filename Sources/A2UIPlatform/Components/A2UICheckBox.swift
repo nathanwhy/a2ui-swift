@@ -87,6 +87,15 @@ final class A2UICheckBox: PlatformView, A2UIPlatformComponent {
     #if canImport(UIKit) && !os(watchOS)
     private func setupControl() {
         let row = a2ui_makeStack(vertical: false, spacing: 8)
+        // Long labels wrap instead of truncating: the switch keeps its size, the
+        // label absorbs the remaining width, and both stay top-aligned.
+        row.alignment = .top
+        label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
+        label.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        toggle.setContentHuggingPriority(.required, for: .horizontal)
+        toggle.setContentCompressionResistancePriority(.required, for: .horizontal)
         row.addArrangedSubview(toggle)
         row.addArrangedSubview(label)
         let column = a2ui_makeStack(vertical: true, spacing: 4)
@@ -102,6 +111,10 @@ final class A2UICheckBox: PlatformView, A2UIPlatformComponent {
     #elseif canImport(AppKit)
     private func setupControl() {
         toggle.setButtonType(.switch)
+        // Long labels wrap instead of truncating.
+        toggle.lineBreakMode = .byWordWrapping
+        toggle.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        toggle.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         toggle.target = self
         toggle.action = #selector(toggled)
         let column = a2ui_makeStack(vertical: true, spacing: 4)

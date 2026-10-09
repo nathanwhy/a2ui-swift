@@ -147,6 +147,30 @@ final class A2UIContainersTests: XCTestCase {
                            "Button child should stay centered when the button is wider than its content")
         }
     }
+
+    /// A long CheckBox label wraps onto multiple lines instead of truncating.
+    #if canImport(UIKit) && !os(watchOS)
+    func testCheckBoxLongLabelWraps() throws {
+        let surface = SurfaceModel(id: "s-cb-wrap")
+        try surface.componentsModel.addComponent(ComponentModel(
+            id: "cb", type: "CheckBox", properties: [
+                "label": .string("I agree to the terms and conditions"),
+                "value": .dictionary(["path": .string("/agreed")]),
+            ]
+        ))
+        let host = A2UISurfaceHostView()
+        host.frame = CGRect(x: 0, y: 0, width: 200, height: 400)
+        host.render(surface: surface, rootComponentId: "cb")
+        host.layoutIfNeeded()
+
+        let box = try XCTUnwrap(find(A2UICheckBox.self, in: host))
+        let label = try XCTUnwrap(find(UILabel.self, in: box))
+        XCTAssertEqual(label.numberOfLines, 0)
+        XCTAssertGreaterThan(label.frame.height, label.font.lineHeight * 1.5,
+                             "Label should wrap to multiple lines at 200pt wide")
+        XCTAssertLessThanOrEqual(label.frame.maxX, 200.5, "Label must stay within the host width")
+    }
+    #endif
 }
 
 #endif
