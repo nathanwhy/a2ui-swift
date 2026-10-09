@@ -75,6 +75,35 @@ final class A2UIInteractionTests: XCTestCase {
         XCTAssertEqual(surface.dataModel.get("/name")?.stringValue, "edited",
                        "Editing should write back to the bound data path")
     }
+
+    func testLongTextTextFieldUsesTextViewAndWritesBack() throws {
+        let surface = SurfaceModel(id: "surface-long")
+        try surface.componentsModel.addComponent(ComponentModel(
+            id: "tf", type: "TextField",
+            properties: [
+                "variant": .string("longText"),
+                "value": .dictionary(["path": .string("/notes")]),
+            ]
+        ))
+        _ = try surface.dataModel.set("/notes", value: .string("line1\nline2"))
+
+        let host = A2UISurfaceHostView()
+        host.render(surface: surface, rootComponentId: "tf")
+        let field = try XCTUnwrap(find(A2UITextField.self, in: host))
+
+        #if canImport(UIKit) && !os(watchOS)
+        let textView = try XCTUnwrap(find(UITextView.self, in: field))
+        XCTAssertFalse(textView.isHidden, "longText should show the multi-line text view")
+        XCTAssertEqual(textView.text, "line1\nline2")
+        #elseif canImport(AppKit)
+        let textView = try XCTUnwrap(find(NSTextView.self, in: field))
+        XCTAssertEqual(textView.string, "line1\nline2")
+        #endif
+
+        field.simulateEditForTesting("a\nb\nc")
+        XCTAssertEqual(surface.dataModel.get("/notes")?.stringValue, "a\nb\nc",
+                       "Multi-line edits should write back to the bound data path")
+    }
 }
 
 #endif

@@ -85,6 +85,9 @@ public enum A2UIPlatformStyle {
 
     public static var cardPadding: CGFloat = 16
 
+    /// Minimum height of a multi-line (`longText`) TextField.
+    public static var longTextMinHeight: CGFloat = 88
+
     /// ChoicePicker checkbox/radio icon point size. `nil` uses the `.title3` text style (UIKit)
     /// / the default symbol size (AppKit).
     public static var choiceIconSize: CGFloat?

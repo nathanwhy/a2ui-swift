@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E7A1C0DE00000000000000B2 /* event_registration.json in Resources */ = {isa = PBXBuildFile; fileRef = E7A1C0DE00000000000000A1 /* event_registration.json */; };
 		0353AFE5EF6DF2246460F164 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33268A60F1D5F66DD19B8087 /* SceneDelegate.swift */; };
 		20284A5E497603FA542CB0F5 /* A2UIUIKit in Frameworks */ = {isa = PBXBuildFile; productRef = 6C74BC311C7072002BCE7CBE /* A2UIUIKit */; };
 		2100E81609BC0517CBF65788 /* A2UISwiftCore in Frameworks */ = {isa = PBXBuildFile; productRef = 81112E99088B70A6E83F063C /* A2UISwiftCore */; };
@@ -23,6 +24,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E7A1C0DE00000000000000A1 /* event_registration.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = event_registration.json; sourceTree = "<group>"; };
 		030F44546E5635317E58C7BF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		09FC66C6125F0F15D02B7B41 /* A2UIUIKitDemo.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = A2UIUIKitDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		33268A60F1D5F66DD19B8087 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -62,6 +64,7 @@
 				917C64BCCBB7F6A4A7C9F124 /* contact_card.json */,
 				86F8A349DBB68B128DD20DC2 /* contact_form.json */,
 				58F0E99465F30098E87124F5 /* DemoViewController.swift */,
+				E7A1C0DE00000000000000A1 /* event_registration.json */,
 				7B2B7FF6DBB2F05E9799324D /* Info.plist */,
 				49700AC724EC288BAC29BDF5 /* kitchen_sink.json */,
 				9B5AF550EA3048F32F05B3EF /* recipe.json */,
@@ -163,6 +166,7 @@
 				C4EEDA405A5E4B346F0CDB4A /* Main.storyboard in Resources */,
 				D68373FE145434347BD9E069 /* contact_card.json in Resources */,
 				34405D5EF9184FC02AD16D2A /* contact_form.json in Resources */,
+				E7A1C0DE00000000000000B2 /* event_registration.json in Resources */,
 				2688F3ADFB7E621C7DB780BC /* kitchen_sink.json in Resources */,
 				A4A72AD773C9E0A6A890A4F2 /* recipe.json in Resources */,
 			);
