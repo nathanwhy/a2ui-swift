@@ -18,8 +18,8 @@ final class DemoViewController: UIViewController {
     private var processor: MessageProcessor?
 
     /// Switch this to any v0.9 sample bundled with the app:
-    /// "contact_card", "contact_form", "recipe", "restaurant_list", "format_functions".
-    private let sampleName = "contact_card"
+    /// "contact_card", "contact_form", "event_registration", "recipe", "restaurant_list", "format_functions".
+    private let sampleName = "event_registration"
 
     override func viewDidLoad() {
         super.viewDidLoad()

@@ -1,0 +1,148 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "event_registration",
+      "catalogId": "https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json",
+      "sendDataModel": true
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "event_registration",
+      "components": [
+        { "id": "root", "component": "Card", "child": "form" },
+        {
+          "id": "form",
+          "component": "Column",
+          "align": "stretch",
+          "children": [
+            "header", "name_row", "email", "password", "company", "divider_1",
+            "role_picker", "interest_picker", "session_picker", "divider_2",
+            "headcount_slider", "date_input", "notes", "terms_checkbox", "button_row"
+          ]
+        },
+        { "id": "header", "component": "Row", "align": "center", "children": ["header_icon", "header_text"] },
+        { "id": "header_icon", "component": "Icon", "name": "event" },
+        { "id": "header_text", "component": "Text", "text": "Conference Registration", "variant": "h2" },
+
+        { "id": "name_row", "component": "Row", "justify": "spaceBetween", "children": ["first_name", "last_name"] },
+        { "id": "first_name", "weight": 1, "component": "TextField", "label": "First name", "value": { "path": "/firstName" } },
+        { "id": "last_name", "weight": 1, "component": "TextField", "label": "Last name", "value": { "path": "/lastName" } },
+        {
+          "id": "email",
+          "component": "TextField",
+          "label": "Work email",
+          "variant": "shortText",
+          "value": { "path": "/email" },
+          "validationRegexp": "^[\\w.+-]+@[\\w-]+\\.[a-zA-Z]{2,}$"
+        },
+        { "id": "password", "component": "TextField", "label": "Password", "variant": "obscured", "value": { "path": "/password" } },
+        { "id": "company", "component": "TextField", "label": "Company", "value": { "path": "/company" } },
+        { "id": "divider_1", "component": "Divider" },
+
+        {
+          "id": "role_picker",
+          "component": "ChoicePicker",
+          "label": "Your role",
+          "variant": "mutuallyExclusive",
+          "displayStyle": "chips",
+          "value": { "path": "/role" },
+          "options": [
+            { "label": "Developer", "value": "developer" },
+            { "label": "Designer", "value": "designer" },
+            { "label": "Manager", "value": "manager" },
+            { "label": "Other", "value": "other" }
+          ]
+        },
+        {
+          "id": "interest_picker",
+          "component": "ChoicePicker",
+          "label": "Topics you're interested in",
+          "variant": "multipleSelection",
+          "displayStyle": "checkbox",
+          "value": { "path": "/interests" },
+          "options": [
+            { "label": "AI & Agents", "value": "ai" },
+            { "label": "Mobile", "value": "mobile" },
+            { "label": "Cloud", "value": "cloud" },
+            { "label": "Security", "value": "security" }
+          ]
+        },
+        {
+          "id": "session_picker",
+          "component": "ChoicePicker",
+          "label": "Preferred session",
+          "variant": "mutuallyExclusive",
+          "value": { "path": "/session" },
+          "options": [
+            { "label": "Morning (9:00 – 12:00)", "value": "morning" },
+            { "label": "Afternoon (13:00 – 17:00)", "value": "afternoon" },
+            { "label": "Evening workshop", "value": "evening" }
+          ]
+        },
+        { "id": "divider_2", "component": "Divider" },
+
+        { "id": "headcount_slider", "component": "Slider", "label": "Number of attendees", "min": 1, "max": 10, "value": { "path": "/headcount" } },
+        { "id": "date_input", "component": "DateTimeInput", "label": "Arrival date", "enableDate": true, "enableTime": false, "value": { "path": "/arrivalDate" } },
+        { "id": "notes", "component": "TextField", "label": "Notes (dietary, accessibility…)", "variant": "longText", "value": { "path": "/notes" } },
+        { "id": "terms_checkbox", "component": "CheckBox", "label": "I agree to the terms and conditions", "value": { "path": "/agreed" } },
+
+        { "id": "button_row", "component": "Row", "justify": "end", "children": ["cancel_button", "submit_button"] },
+        { "id": "cancel_label", "component": "Text", "text": "Cancel" },
+        {
+          "id": "cancel_button",
+          "component": "Button",
+          "child": "cancel_label",
+          "action": { "event": { "name": "cancelRegistration" } }
+        },
+        { "id": "submit_label", "component": "Text", "text": "Register" },
+        {
+          "id": "submit_button",
+          "component": "Button",
+          "child": "submit_label",
+          "variant": "primary",
+          "action": {
+            "event": {
+              "name": "submitRegistration",
+              "context": {
+                "firstName": { "path": "/firstName" },
+                "lastName": { "path": "/lastName" },
+                "email": { "path": "/email" },
+                "company": { "path": "/company" },
+                "role": { "path": "/role" },
+                "interests": { "path": "/interests" },
+                "session": { "path": "/session" },
+                "headcount": { "path": "/headcount" },
+                "arrivalDate": { "path": "/arrivalDate" },
+                "notes": { "path": "/notes" },
+                "agreed": { "path": "/agreed" }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateDataModel": {
+      "surfaceId": "event_registration",
+      "value": {
+        "firstName": "",
+        "lastName": "",
+        "email": "",
+        "password": "",
+        "company": "",
+        "role": ["developer"],
+        "interests": ["ai", "mobile"],
+        "session": ["morning"],
+        "headcount": 1,
+        "arrivalDate": "2026-11-05",
+        "notes": "",
+        "agreed": false
+      }
+    }
+  }
+]

@@ -85,6 +85,19 @@ public enum A2UIPlatformStyle {
 
     public static var cardPadding: CGFloat = 16
 
+    /// ChoicePicker checkbox/radio icon point size. `nil` uses the `.title3` text style (UIKit)
+    /// / the default symbol size (AppKit).
+    public static var choiceIconSize: CGFloat?
+
+    /// ChoicePicker icon color when an option is unselected.
+    public static var choiceUnselectedColor: PlatformColor = {
+        #if canImport(UIKit) && !os(watchOS)
+        return .secondaryLabel
+        #elseif canImport(AppKit)
+        return .secondaryLabelColor
+        #endif
+    }()
+
     /// Maps a Text variant to a native preferred font (h1–h5 / body / caption),
     /// mirroring SwiftUI's `.largeTitle`/`.title`/… mapping.
     public static func font(for variant: TextVariant?) -> PlatformFont {
