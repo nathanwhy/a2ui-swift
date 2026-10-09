@@ -66,11 +66,13 @@ public final class ComponentFactory {
         case .Text:
             return A2UIText()
         case .Row:
-            // Product decision: Row is rendered vertically by default, with
-            // children stretched to full width unless `align` says otherwise.
-            return A2UIStack(vertical: true, defaultAlign: .stretch)
+            // Product decision: Row is rendered vertically with children always
+            // stretched to full width; its `align`/`justify` are ignored.
+            return A2UIStack(vertical: true, defaultAlign: .stretch, ignoresLayoutProps: true)
         case .Column:
-            return A2UIStack(vertical: true)
+            // Children fill the width unless `align` says otherwise, so a nested
+            // Row (also full-width) isn't shrunk to its content.
+            return A2UIStack(vertical: true, defaultAlign: .stretch)
         case .List:
             return A2UIList()
         case .Divider:

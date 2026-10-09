@@ -32,10 +32,15 @@ final class A2UIStack: PlatformView, A2UIPlatformComponent {
     private let vertical: Bool
     /// Cross-axis alignment used when the component doesn't specify `align`.
     private let defaultAlign: Align?
+    /// When true, `align`/`justify` from the component are ignored and
+    /// `defaultAlign` is always used (Row rendered vertically, where the spec's
+    /// horizontal-layout `align`/`justify` no longer apply).
+    private let ignoresLayoutProps: Bool
 
-    init(vertical: Bool, defaultAlign: Align? = nil) {
+    init(vertical: Bool, defaultAlign: Align? = nil, ignoresLayoutProps: Bool = false) {
         self.vertical = vertical
         self.defaultAlign = defaultAlign
+        self.ignoresLayoutProps = ignoresLayoutProps
         self.stack = a2ui_makeStack(vertical: vertical)
         super.init(frame: .zero)
         a2ui_pinEdges(of: stack)
@@ -43,6 +48,7 @@ final class A2UIStack: PlatformView, A2UIPlatformComponent {
 
     required init?(coder: NSCoder) {
         self.defaultAlign = nil
+        self.ignoresLayoutProps = false
         self.vertical = true
         self.stack = a2ui_makeStack(vertical: true)
         super.init(coder: coder)
@@ -52,9 +58,11 @@ final class A2UIStack: PlatformView, A2UIPlatformComponent {
     func configure(node: ComponentNode, surface: SurfaceModel, factory: ComponentFactory) {
         // Row/Column share the same property shape (children/justify/align).
         let props = try? node.typedProperties(RowProperties.self)
-        a2ui_applyAlignment(stack, align: props?.align ?? defaultAlign, vertical: vertical)
+        let align = ignoresLayoutProps ? defaultAlign : (props?.align ?? defaultAlign)
+        let justify = ignoresLayoutProps ? nil : props?.justify
+        a2ui_applyAlignment(stack, align: align, vertical: vertical)
         a2ui_populateDistributed(
-            stack: stack, children: node.children, justify: props?.justify,
+            stack: stack, children: node.children, justify: justify,
             vertical: vertical, surface: surface, factory: factory
         )
         let dc = DataContext(surface: surface, path: node.dataContextPath)
