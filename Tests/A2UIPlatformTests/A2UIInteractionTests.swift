@@ -104,6 +104,72 @@ final class A2UIInteractionTests: XCTestCase {
         XCTAssertEqual(surface.dataModel.get("/notes")?.stringValue, "a\nb\nc",
                        "Multi-line edits should write back to the bound data path")
     }
+
+    private func layOut(_ host: A2UISurfaceHostView, width: CGFloat) {
+        host.frame = CGRect(x: 0, y: 0, width: width, height: 600)
+        #if canImport(UIKit) && !os(watchOS)
+        host.layoutIfNeeded()
+        #elseif canImport(AppKit)
+        host.layoutSubtreeIfNeeded()
+        #endif
+    }
+
+    private func renderTextField(
+        variant: String, label: String = "Name", hostWidth: CGFloat
+    ) throws -> (A2UITextField, A2UISurfaceHostView) {
+        let surface = SurfaceModel(id: "surface-width-\(variant)-\(hostWidth)")
+        try surface.componentsModel.addComponent(ComponentModel(
+            id: "col", type: "Column", properties: ["children": .array([.string("tf")])]))
+        try surface.componentsModel.addComponent(ComponentModel(
+            id: "tf", type: "TextField",
+            properties: [
+                "variant": .string(variant),
+                "label": .string(label),
+                "value": .dictionary(["path": .string("/v")]),
+            ]
+        ))
+        let host = A2UISurfaceHostView()
+        host.render(surface: surface, rootComponentId: "col")
+        layOut(host, width: hostWidth)
+        return (try XCTUnwrap(find(A2UITextField.self, in: host)), host)
+    }
+
+    func testTextFieldFillsWidthUpToMaximum() throws {
+        let (narrow, _) = try renderTextField(variant: "shortText", hostWidth: 300)
+        XCTAssertEqual(narrow.frame.width, 300 - 2 * A2UIPlatformStyle.leafMargin, accuracy: 1,
+                       "Should fill the available width")
+
+        let (wide, _) = try renderTextField(variant: "shortText", hostWidth: 800)
+        XCTAssertEqual(wide.frame.width, A2UIPlatformStyle.textFieldMaxWidth, accuracy: 1,
+                       "Should stop growing at textFieldMaxWidth")
+    }
+
+    func testLongTextPlaceholderWraps() throws {
+        let placeholder = "Dietary requirements, accessibility needs, or anything else we should know"
+        let (field, _) = try renderTextField(
+            variant: "longText", label: placeholder, hostWidth: 240)
+        #if canImport(UIKit) && !os(watchOS)
+        let textView = try XCTUnwrap(find(UITextView.self, in: field))
+        func labels(in view: UIView) -> [UILabel] {
+            view.subviews.flatMap { ($0 as? UILabel).map { [$0] } ?? [] + labels(in: $0) }
+        }
+        let label = try XCTUnwrap(labels(in: field).first { $0.text == placeholder })
+        let lineHeight = label.font.lineHeight
+        // The label is a sibling of the text view, so compare in the field's space.
+        let textArea = textView.convert(textView.bounds, to: field)
+        let labelFrame = label.convert(label.bounds, to: field)
+        #elseif canImport(AppKit)
+        let textView = try XCTUnwrap(find(NSTextView.self, in: field))
+        let label = try XCTUnwrap(find(NSTextField.self, in: textView))
+        let lineHeight = (label.font ?? .systemFont(ofSize: NSFont.systemFontSize)).boundingRectForFont.height
+        let textArea = textView.bounds
+        let labelFrame = label.frame
+        #endif
+        XCTAssertGreaterThan(labelFrame.height, lineHeight * 1.5,
+                             "A long placeholder should wrap onto multiple lines")
+        XCTAssertLessThanOrEqual(labelFrame.maxX, textArea.maxX + 0.5,
+                                 "The placeholder should stay inside the text area")
+    }
 }
 
 #endif

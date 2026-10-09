@@ -85,6 +85,9 @@ public enum A2UIPlatformStyle {
 
     public static var cardPadding: CGFloat = 16
 
+    /// Maximum width of a TextField. It fills the available width up to this cap.
+    public static var textFieldMaxWidth: CGFloat = 400
+
     /// Minimum height of a multi-line (`longText`) TextField.
     public static var longTextMinHeight: CGFloat = 88
 

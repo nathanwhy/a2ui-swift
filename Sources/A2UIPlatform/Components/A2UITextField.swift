@@ -37,12 +37,17 @@ final class A2UITextField: PlatformView, A2UIPlatformComponent {
     #if canImport(UIKit) && !os(watchOS)
     private let field = UITextField()
     private let textView = UITextView()
+    /// Plain view holding `textView` + the placeholder as siblings. The placeholder
+    /// must NOT be a subview of the UITextView: it is a UIScrollView, so constraints
+    /// to its edges resolve against the scrollable content area (not the visible
+    /// width) and a long placeholder would never wrap.
+    private let longTextContainer = UIView()
     private let placeholderLabel = UILabel()
     #elseif canImport(AppKit)
     private let field = NSTextField()
     private let scrollView = NSScrollView()
     private let textView = NSTextView()
-    private let placeholderLabel = NSTextField(labelWithString: "")
+    private let placeholderLabel = NSTextField(wrappingLabelWithString: "")
     #endif
     /// `variant: longText` — multi-line `textView` is shown instead of `field`.
     private var isLongText = false
@@ -55,6 +60,13 @@ final class A2UITextField: PlatformView, A2UIPlatformComponent {
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         setupField()
+    }
+
+    /// Fills the available width but never grows past `textFieldMaxWidth`: the
+    /// preferred width is the cap, and a low compression resistance lets the
+    /// field shrink to whatever the parent offers.
+    override var intrinsicContentSize: CGSize {
+        CGSize(width: A2UIPlatformStyle.textFieldMaxWidth, height: PlatformView.noIntrinsicMetric)
     }
 
     func configure(node: ComponentNode, surface: SurfaceModel, factory: ComponentFactory) {
@@ -108,10 +120,11 @@ final class A2UITextField: PlatformView, A2UIPlatformComponent {
     // MARK: - Platform shell
 
     private func setupField() {
+        setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         let stack = a2ui_makeStack(vertical: true, spacing: 4)
         stack.addArrangedSubview(field)
         #if canImport(UIKit) && !os(watchOS)
-        stack.addArrangedSubview(textView)
+        stack.addArrangedSubview(longTextContainer)
         #elseif canImport(AppKit)
         stack.addArrangedSubview(scrollView)
         #endif
@@ -130,7 +143,7 @@ final class A2UITextField: PlatformView, A2UIPlatformComponent {
 
     #if canImport(UIKit) && !os(watchOS)
     private func setupTextView() {
-        textView.isHidden = true
+        longTextContainer.isHidden = true
         textView.isScrollEnabled = false // grows with content
         textView.font = .preferredFont(forTextStyle: .body)
         textView.backgroundColor = .clear
@@ -138,24 +151,28 @@ final class A2UITextField: PlatformView, A2UIPlatformComponent {
         textView.layer.borderWidth = A2UIPlatformStyle.dividerThickness
         textView.layer.borderColor = A2UIPlatformStyle.separator.cgColor
         textView.delegate = self
-        textView.heightAnchor.constraint(
+        longTextContainer.a2ui_pinEdges(of: textView)
+        longTextContainer.heightAnchor.constraint(
             greaterThanOrEqualToConstant: A2UIPlatformStyle.longTextMinHeight).isActive = true
 
-        // UITextView has no native placeholder — overlay a label at the text origin.
+        // UITextView has no native placeholder — overlay a label at the text origin,
+        // pinned to the text view's frame (see `longTextContainer`) so it wraps.
         placeholderLabel.font = textView.font
         placeholderLabel.textColor = .placeholderText
         placeholderLabel.numberOfLines = 0
         placeholderLabel.translatesAutoresizingMaskIntoConstraints = false
-        textView.addSubview(placeholderLabel)
+        longTextContainer.addSubview(placeholderLabel)
+        let inset = textView.textContainerInset
+        let padding = textView.textContainer.lineFragmentPadding
         NSLayoutConstraint.activate([
-            placeholderLabel.topAnchor.constraint(
-                equalTo: textView.topAnchor, constant: textView.textContainerInset.top),
+            placeholderLabel.topAnchor.constraint(equalTo: textView.topAnchor, constant: inset.top),
             placeholderLabel.leadingAnchor.constraint(
-                equalTo: textView.leadingAnchor,
-                constant: textView.textContainerInset.left + textView.textContainer.lineFragmentPadding),
+                equalTo: textView.leadingAnchor, constant: inset.left + padding),
             placeholderLabel.trailingAnchor.constraint(
-                lessThanOrEqualTo: textView.trailingAnchor,
-                constant: -(textView.textContainerInset.right + textView.textContainer.lineFragmentPadding)),
+                equalTo: textView.trailingAnchor, constant: -(inset.right + padding)),
+            // Grow the field to fit a multi-line placeholder.
+            longTextContainer.bottomAnchor.constraint(
+                greaterThanOrEqualTo: placeholderLabel.bottomAnchor, constant: inset.bottom),
         ])
     }
     #elseif canImport(AppKit)
@@ -189,6 +206,13 @@ final class A2UITextField: PlatformView, A2UIPlatformComponent {
                 equalTo: textView.topAnchor, constant: textView.textContainerInset.height),
             placeholderLabel.leadingAnchor.constraint(
                 equalTo: textView.leadingAnchor, constant: textView.textContainerInset.width + padding),
+            // Pinned on both sides so a long placeholder wraps.
+            placeholderLabel.trailingAnchor.constraint(
+                equalTo: textView.trailingAnchor, constant: -(textView.textContainerInset.width + padding)),
+            // Grow the scroll view to fit a multi-line placeholder.
+            scrollView.heightAnchor.constraint(
+                greaterThanOrEqualTo: placeholderLabel.heightAnchor,
+                constant: textView.textContainerInset.height * 2),
         ])
     }
     #endif
@@ -200,7 +224,7 @@ final class A2UITextField: PlatformView, A2UIPlatformComponent {
         isLongText = (variant == .longText)
         #if canImport(UIKit) && !os(watchOS)
         field.isHidden = isLongText
-        textView.isHidden = !isLongText
+        longTextContainer.isHidden = !isLongText
         switch variant {
         case .obscured: field.isSecureTextEntry = true
         case .number:   field.keyboardType = .decimalPad
