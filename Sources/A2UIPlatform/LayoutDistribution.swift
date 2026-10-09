@@ -117,7 +117,8 @@ func a2ui_applyAlignment(_ stack: NSStackView, align: Align?, vertical: Bool) {
     switch align {
     case .center: stack.alignment = vertical ? .centerX : .centerY
     case .end:    stack.alignment = vertical ? .trailing : .bottom
-    default:      stack.alignment = vertical ? .leading : .top // start / stretch / nil
+    case .stretch: stack.alignment = vertical ? .width : .top
+    default:      stack.alignment = vertical ? .leading : .top // start / nil
     }
 }
 typealias PlatformLayoutPriority = NSLayoutConstraint.Priority

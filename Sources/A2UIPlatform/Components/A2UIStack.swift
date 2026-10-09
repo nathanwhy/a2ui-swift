@@ -30,15 +30,19 @@ final class A2UIStack: PlatformView, A2UIPlatformComponent {
 
     private let stack: PlatformStackView
     private let vertical: Bool
+    /// Cross-axis alignment used when the component doesn't specify `align`.
+    private let defaultAlign: Align?
 
-    init(vertical: Bool) {
+    init(vertical: Bool, defaultAlign: Align? = nil) {
         self.vertical = vertical
+        self.defaultAlign = defaultAlign
         self.stack = a2ui_makeStack(vertical: vertical)
         super.init(frame: .zero)
         a2ui_pinEdges(of: stack)
     }
 
     required init?(coder: NSCoder) {
+        self.defaultAlign = nil
         self.vertical = true
         self.stack = a2ui_makeStack(vertical: true)
         super.init(coder: coder)
@@ -48,7 +52,7 @@ final class A2UIStack: PlatformView, A2UIPlatformComponent {
     func configure(node: ComponentNode, surface: SurfaceModel, factory: ComponentFactory) {
         // Row/Column share the same property shape (children/justify/align).
         let props = try? node.typedProperties(RowProperties.self)
-        a2ui_applyAlignment(stack, align: props?.align, vertical: vertical)
+        a2ui_applyAlignment(stack, align: props?.align ?? defaultAlign, vertical: vertical)
         a2ui_populateDistributed(
             stack: stack, children: node.children, justify: props?.justify,
             vertical: vertical, surface: surface, factory: factory
