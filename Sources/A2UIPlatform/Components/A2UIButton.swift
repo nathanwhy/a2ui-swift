@@ -56,8 +56,19 @@ final class A2UIButton: PlatformView, A2UIPlatformComponent {
         hosted?.removeFromSuperview()
         guard let child = node.children.first else { hosted = nil; return }
         let view = factory.makeView(for: child, surface: surface)
-        // .bordered/.borderedProminent use compact padding around the label.
-        a2ui_pinEdges(of: view, inset: 6)
+        // .bordered/.borderedProminent use compact padding around the label. The
+        // child is centered (not stretched) so it stays centered when the button
+        // is wider than its content, e.g. full-width in a `stretch` Column.
+        let inset: CGFloat = 6
+        addSubview(view)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            view.centerXAnchor.constraint(equalTo: centerXAnchor),
+            view.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: inset),
+            view.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -inset),
+            view.topAnchor.constraint(equalTo: topAnchor, constant: inset),
+            view.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -inset),
+        ])
         hosted = view
         applyVariant(props.variant ?? .default, on: view)
         a2ui_applyAccessibility(node.accessibility, dataContext: dataContext!)

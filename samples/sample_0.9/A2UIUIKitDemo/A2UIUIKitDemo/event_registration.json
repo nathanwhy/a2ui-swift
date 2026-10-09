@@ -89,13 +89,21 @@
         { "id": "notes", "component": "TextField", "label": "Notes (dietary, accessibility…)", "variant": "longText", "value": { "path": "/notes" } },
         { "id": "terms_checkbox", "component": "CheckBox", "label": "I agree to the terms and conditions", "value": { "path": "/agreed" } },
 
-        { "id": "button_row", "component": "Row", "justify": "end", "children": ["cancel_button", "submit_button"] },
+        { "id": "button_row", "component": "Column", "align": "stretch", "children": ["submit_button", "draft_button", "cancel_button"] },
         { "id": "cancel_label", "component": "Text", "text": "Cancel" },
         {
           "id": "cancel_button",
           "component": "Button",
           "child": "cancel_label",
+          "variant": "borderless",
           "action": { "event": { "name": "cancelRegistration" } }
+        },
+        { "id": "draft_label", "component": "Text", "text": "Save as draft" },
+        {
+          "id": "draft_button",
+          "component": "Button",
+          "child": "draft_label",
+          "action": { "event": { "name": "saveDraft" } }
         },
         { "id": "submit_label", "component": "Text", "text": "Register" },
         {

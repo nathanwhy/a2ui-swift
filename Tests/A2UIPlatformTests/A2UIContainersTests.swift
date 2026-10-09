@@ -97,6 +97,56 @@ final class A2UIContainersTests: XCTestCase {
         XCTAssertEqual(picker.selectedValues, ["x"])
         XCTAssertEqual(surface.dataModel.get("/sel")?.arrayValue?.compactMap(\.stringValue), ["x"])
     }
+
+    /// A `stretch` Column makes its buttons full-width, and each button keeps its
+    /// label centered rather than left-aligned.
+    func testStretchColumnButtonsAreFullWidthWithCenteredLabels() throws {
+        let surface = SurfaceModel(id: "s-btn-col")
+        try surface.componentsModel.addComponent(ComponentModel(
+            id: "col", type: "Column", properties: [
+                "align": .string("stretch"),
+                "children": .array([.string("b1"), .string("b2")]),
+            ]
+        ))
+        for (id, title) in [("b1", "Register"), ("b2", "Save as draft for later")] {
+            try surface.componentsModel.addComponent(ComponentModel(
+                id: id, type: "Button", properties: [
+                    "child": .string("\(id)_label"),
+                    "action": .dictionary(["event": .dictionary(["name": .string(id)])]),
+                ]
+            ))
+            try surface.componentsModel.addComponent(ComponentModel(
+                id: "\(id)_label", type: "Text", properties: ["text": .string(title)]))
+        }
+
+        let host = A2UISurfaceHostView()
+        host.frame = CGRect(x: 0, y: 0, width: 300, height: 400)
+        host.render(surface: surface, rootComponentId: "col")
+        #if canImport(UIKit) && !os(watchOS)
+        host.layoutIfNeeded()
+        #elseif canImport(AppKit)
+        host.layoutSubtreeIfNeeded()
+        #endif
+
+        var buttons: [A2UIButton] = []
+        func collect(_ view: PlatformView) {
+            for sub in view.subviews {
+                if let b = sub as? A2UIButton { buttons.append(b) } else { collect(sub) }
+            }
+        }
+        collect(host)
+        XCTAssertEqual(buttons.count, 2)
+
+        let widths = buttons.map { $0.frame.width }
+        XCTAssertEqual(widths[0], widths[1], accuracy: 0.5, "Stretch should give equal button widths")
+
+        for button in buttons {
+            let label = try XCTUnwrap(find(A2UIText.self, in: button))
+            let labelCenter = label.convert(CGPoint(x: label.bounds.midX, y: 0), to: button).x
+            XCTAssertEqual(labelCenter, button.bounds.midX, accuracy: 0.5,
+                           "Button child should stay centered when the button is wider than its content")
+        }
+    }
 }
 
 #endif
